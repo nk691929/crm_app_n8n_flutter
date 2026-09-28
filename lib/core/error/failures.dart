@@ -35,3 +35,6 @@ final class ValidationFailure extends Failure {
 final class UnknownFailure extends Failure {
   const UnknownFailure([super.message = 'Something went wrong. Please try again.']);
 }
+
+String failureMessage(Object error) =>
+    error is Failure ? error.message : const UnknownFailure().message;

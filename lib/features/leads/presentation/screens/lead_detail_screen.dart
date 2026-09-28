@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:crm_app/core/error/result.dart';
 
 import '../../domain/entities/lead.dart';
 import '../providers/leads_providers.dart';
@@ -8,10 +9,7 @@ import '../providers/leads_providers.dart';
 class LeadDetailScreen extends ConsumerStatefulWidget {
   final Lead lead;
 
-  const LeadDetailScreen({
-    super.key,
-    required this.lead,
-  });
+  const LeadDetailScreen({super.key, required this.lead});
 
   @override
   ConsumerState<LeadDetailScreen> createState() => _LeadDetailScreenState();
@@ -40,67 +38,77 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   }
 
   Future<void> _updateStatus(LeadStatus? newStatus) async {
-    if (newStatus == null) return;
+    if (newStatus == null || newStatus == _status) return;
 
+    final previous = _status;
     setState(() => _status = newStatus);
 
-    await ref.read(leadsControllerProvider).updateStatus(
-          leadId: widget.lead.id,
-          status: newStatus,
-        );
+    final result = await ref
+        .read(leadsControllerProvider)
+        .updateStatus(leadId: widget.lead.id, status: newStatus);
+
+    if (!mounted) return;
+
+    if (result case Err(:final failure)) {
+      setState(() => _status = previous);
+      _showMessage(failure.message);
+    }
   }
 
   Future<void> _updatePriority(LeadPriority? newPriority) async {
-    if (newPriority == null) return;
+    if (newPriority == null || newPriority == _priority) return;
 
+    final previous = _priority;
     setState(() => _priority = newPriority);
 
-    await ref.read(leadsControllerProvider).updatePriority(
-          leadId: widget.lead.id,
-          priority: newPriority,
-        );
+    final result = await ref
+        .read(leadsControllerProvider)
+        .updatePriority(leadId: widget.lead.id, priority: newPriority);
+
+    if (!mounted) return;
+
+    if (result case Err(:final failure)) {
+      setState(() => _priority = previous);
+      _showMessage(failure.message);
+    }
   }
 
   Future<void> _addNote() async {
     final text = _noteController.text.trim();
-
     if (text.isEmpty) return;
 
     setState(() => _isSaving = true);
 
-    try {
-      await ref.read(leadsControllerProvider).addNote(
-            leadId: widget.lead.id,
-            note: text,
-          );
+    final result = await ref
+        .read(leadsControllerProvider)
+        .addNote(leadId: widget.lead.id, note: text);
 
-      _noteController.clear();
+    if (!mounted) return;
+    setState(() => _isSaving = false);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Note added successfully'),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
+    switch (result) {
+      case Success():
+        _noteController.clear();
+        _showMessage('Note added successfully');
+      case Err(:final failure):
+        _showMessage(failure.message);
     }
   }
 
+  void _showMessage(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+    );
+  }
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Not yet';
 
-    return DateFormat(
-      'MMM d, yyyy · h:mm a',
-    ).format(date.toLocal());
+    return DateFormat('MMM d, yyyy · h:mm a').format(date.toLocal());
   }
 
   Color _statusColor(LeadStatus status) {
@@ -135,11 +143,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final lead = widget.lead;
-
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FC),
@@ -156,31 +162,19 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
         title: const Text(
           'Lead Details',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
 
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            120,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
           children: [
-
             _buildHeroCard(lead),
 
             const SizedBox(height: 20),
 
-
-            _sectionTitle(
-              'Lead Status',
-              'Keep the pipeline up to date',
-            ),
+            _sectionTitle('Lead Status', 'Keep the pipeline up to date'),
 
             const SizedBox(height: 12),
 
@@ -188,18 +182,13 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
             const SizedBox(height: 24),
 
-
-            _sectionTitle(
-              'Contact Information',
-              'How you can reach this lead',
-            ),
+            _sectionTitle('Contact Information', 'How you can reach this lead'),
 
             const SizedBox(height: 12),
 
             _buildContactCard(lead),
 
             const SizedBox(height: 24),
-
 
             _sectionTitle(
               'Lead Information',
@@ -212,11 +201,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
             const SizedBox(height: 24),
 
-
-            _sectionTitle(
-              'Priority',
-              'How important is this lead?',
-            ),
+            _sectionTitle('Priority', 'How important is this lead?'),
 
             const SizedBox(height: 12),
 
@@ -224,19 +209,13 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
             const SizedBox(height: 24),
 
-
-            _sectionTitle(
-              'Activity',
-              'Lead history and follow-up information',
-            ),
+            _sectionTitle('Activity', 'Lead history and follow-up information'),
 
             const SizedBox(height: 12),
 
             _buildTimelineCard(lead),
 
-
-            if (lead.message != null &&
-                lead.message!.trim().isNotEmpty) ...[
+            if (lead.message != null && lead.message!.trim().isNotEmpty) ...[
               const SizedBox(height: 24),
 
               _sectionTitle(
@@ -250,7 +229,6 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             ],
 
             const SizedBox(height: 24),
-
 
             _sectionTitle(
               'Add Note',
@@ -279,9 +257,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                     : const Icon(Icons.add_rounded),
                 label: Text(
                   _isSaving ? 'Saving...' : 'Save Note',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 style: FilledButton.styleFrom(
                   shape: RoundedRectangleBorder(
@@ -296,7 +272,6 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     );
   }
 
-
   Widget _buildHeroCard(Lead lead) {
     final priorityColor = _priorityColor(_priority);
     final statusColor = _statusColor(_status);
@@ -308,10 +283,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF111827),
-            Color(0xFF1F2937),
-          ],
+          colors: [Color(0xFF111827), Color(0xFF1F2937)],
         ),
         boxShadow: [
           BoxShadow(
@@ -413,25 +385,16 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.08),
-        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 10,
-            color: color,
-          ),
+          Icon(icon, size: 10, color: color),
 
           const SizedBox(width: 7),
 
@@ -448,16 +411,13 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     );
   }
 
-
   Widget _buildStatusSelector() {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Column(
         children: LeadStatus.values.map((status) {
@@ -469,10 +429,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 220),
               margin: const EdgeInsets.symmetric(vertical: 2),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 13,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
               decoration: BoxDecoration(
                 color: selected
                     ? color.withValues(alpha: 0.10)
@@ -497,8 +454,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                     child: Text(
                       status.label,
                       style: TextStyle(
-                        fontWeight:
-                            selected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: selected
                             ? const Color(0xFF111827)
                             : const Color(0xFF6B7280),
@@ -507,11 +465,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                   ),
 
                   if (selected)
-                    Icon(
-                      Icons.check_circle_rounded,
-                      size: 20,
-                      color: color,
-                    ),
+                    Icon(Icons.check_circle_rounded, size: 20, color: color),
                 ],
               ),
             ),
@@ -557,11 +511,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             color: const Color(0xFFF3F4F6),
             borderRadius: BorderRadius.circular(13),
           ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: const Color(0xFF4B5563),
-          ),
+          child: Icon(icon, size: 20, color: const Color(0xFF4B5563)),
         ),
 
         const SizedBox(width: 14),
@@ -627,21 +577,14 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   }) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 19,
-          color: const Color(0xFF6B7280),
-        ),
+        Icon(icon, size: 19, color: const Color(0xFF6B7280)),
 
         const SizedBox(width: 12),
 
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFF6B7280),
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13),
           ),
         ),
 
@@ -664,7 +607,6 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     );
   }
 
-
   Widget _buildPrioritySelector() {
     return Row(
       children: LeadPriority.values.map((priority) {
@@ -679,14 +621,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               margin: EdgeInsets.only(
                 right: priority == LeadPriority.low ? 0 : 8,
               ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 15,
-                horizontal: 8,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
               decoration: BoxDecoration(
-                color: selected
-                    ? color.withValues(alpha: 0.10)
-                    : Colors.white,
+                color: selected ? color.withValues(alpha: 0.10) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selected
@@ -701,8 +638,8 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                     priority == LeadPriority.high
                         ? Icons.keyboard_double_arrow_up_rounded
                         : priority == LeadPriority.medium
-                            ? Icons.drag_handle_rounded
-                            : Icons.keyboard_double_arrow_down_rounded,
+                        ? Icons.drag_handle_rounded
+                        : Icons.keyboard_double_arrow_down_rounded,
                     color: color,
                     size: 22,
                   ),
@@ -712,12 +649,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                   Text(
                     priority.label,
                     style: TextStyle(
-                      color: selected
-                          ? color
-                          : const Color(0xFF6B7280),
+                      color: selected ? color : const Color(0xFF6B7280),
                       fontSize: 12,
-                      fontWeight:
-                          selected ? FontWeight.w800 : FontWeight.w500,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                     ),
                   ),
                 ],
@@ -728,7 +662,6 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       }).toList(),
     );
   }
-
 
   Widget _buildTimelineCard(Lead lead) {
     return _card(
@@ -791,19 +724,11 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                   color: color.withValues(alpha: 0.10),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  size: 17,
-                  color: color,
-                ),
+                child: Icon(icon, size: 17, color: color),
               ),
 
               if (!isLast)
-                Container(
-                  width: 1,
-                  height: 34,
-                  color: const Color(0xFFE5E7EB),
-                ),
+                Container(width: 1, height: 34, color: const Color(0xFFE5E7EB)),
             ],
           ),
         ),
@@ -812,10 +737,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(
-              top: 2,
-              bottom: 18,
-            ),
+            padding: const EdgeInsets.only(top: 2, bottom: 18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -846,16 +768,13 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     );
   }
 
-
   Widget _buildMessageCard(String message) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -891,16 +810,13 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     );
   }
 
-
   Widget _buildNoteComposer() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -915,31 +831,18 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
         textInputAction: TextInputAction.newline,
         decoration: InputDecoration(
           hintText: 'Write something important about this lead...',
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3AF),
-            fontSize: 14,
-          ),
+          hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
           border: InputBorder.none,
           prefixIcon: const Padding(
-            padding: EdgeInsets.only(
-              left: 4,
-              right: 8,
-              bottom: 65,
-            ),
-            child: Icon(
-              Icons.edit_note_rounded,
-              color: Color(0xFF6B7280),
-            ),
+            padding: EdgeInsets.only(left: 4, right: 8, bottom: 65),
+            child: Icon(Icons.edit_note_rounded, color: Color(0xFF6B7280)),
           ),
         ),
       ),
     );
   }
 
-  Widget _sectionTitle(
-    String title,
-    String subtitle,
-  ) {
+  Widget _sectionTitle(String title, String subtitle) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -956,26 +859,19 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
         Text(
           subtitle,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF9CA3AF),
-          ),
+          style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
         ),
       ],
     );
   }
 
-  Widget _card({
-    required Widget child,
-  }) {
+  Widget _card({required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
       ),
       child: child,
     );
@@ -984,10 +880,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   Widget _cardDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Divider(
-        height: 1,
-        color: const Color(0xFFF0F1F4),
-      ),
+      child: Divider(height: 1, color: const Color(0xFFF0F1F4)),
     );
   }
 
