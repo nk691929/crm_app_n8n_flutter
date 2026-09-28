@@ -1,5 +1,5 @@
-import 'package:crm_app/features/auth/domin/entitites/app_user.dart';
-import 'package:crm_app/features/auth/domin/repositories/auth_repository.dart';
+import 'package:crm_app/features/auth/domain/entities/app_user.dart';
+import 'package:crm_app/features/auth/domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

@@ -1,6 +1,6 @@
 import 'package:crm_app/core/providers/supabase_provider.dart';
-import 'package:crm_app/features/auth/domin/entitites/app_user.dart';
-import 'package:crm_app/features/auth/domin/repositories/auth_repository.dart';
+import 'package:crm_app/features/auth/domain/entities/app_user.dart';
+import 'package:crm_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
