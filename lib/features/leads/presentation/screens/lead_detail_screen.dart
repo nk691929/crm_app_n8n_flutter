@@ -6,6 +6,10 @@ import 'package:crm_app/core/error/result.dart';
 import '../../domain/entities/lead.dart';
 import '../providers/leads_providers.dart';
 
+import 'package:crm_app/core/error/failures.dart';
+
+import '../../domain/entities/lead_note.dart';
+
 class LeadDetailScreen extends ConsumerStatefulWidget {
   final Lead lead;
 
@@ -89,6 +93,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     switch (result) {
       case Success():
         _noteController.clear();
+        ref.invalidate(leadNotesProvider(widget.lead.id));
         _showMessage('Note added successfully');
       case Err(:final failure):
         _showMessage(failure.message);
@@ -228,6 +233,11 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               _buildMessageCard(lead.message!),
             ],
 
+            const SizedBox(height: 24),
+
+            _sectionTitle('Notes', 'Everything logged for this lead'),
+            const SizedBox(height: 12),
+            _buildNotesHistory(),
             const SizedBox(height: 24),
 
             _sectionTitle(
@@ -881,6 +891,89 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15),
       child: Divider(height: 1, color: const Color(0xFFF0F1F4)),
+    );
+  }
+
+  Widget _buildNotesHistory() {
+    final notesAsync = ref.watch(leadNotesProvider(widget.lead.id));
+
+    return notesAsync.when(
+      skipLoadingOnReload: true,
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => _notesError(failureMessage(error)),
+      data: (result) => switch (result) {
+        Err(:final failure) => _notesError(failure.message),
+        Success(:final value) => _notesList(value),
+      },
+    );
+  }
+
+  Widget _notesError(String message) {
+    return _card(
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: Color(0xFF6B7280)),
+            ),
+          ),
+          TextButton(
+            onPressed: () => ref.invalidate(leadNotesProvider(widget.lead.id)),
+            child: const Text('Try again'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _notesList(List<LeadNote> notes) {
+    if (notes.isEmpty) {
+      return _card(
+        child: const Text(
+          'No notes yet. Add the first one below.',
+          style: TextStyle(color: Color(0xFF6B7280)),
+        ),
+      );
+    }
+
+    return _card(
+      child: Column(
+        children: [
+          for (var i = 0; i < notes.length; i++) ...[
+            _noteItem(notes[i]),
+            if (i != notes.length - 1) _cardDivider(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _noteItem(LeadNote note) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          note.text,
+          style: const TextStyle(
+            height: 1.5,
+            fontSize: 14,
+            color: Color(0xFF374151),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          _formatDate(note.createdAt),
+          style: const TextStyle(
+            fontSize: 11,
+            color: Color(0xFF9CA3AF),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
