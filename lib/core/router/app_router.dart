@@ -11,7 +11,7 @@ import 'app_routes.dart';
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
   ref.onDispose(refresh.dispose);
-  ref.listen(authStateChangesProvider, (_, __) => refresh.value++);
+  ref.listen(authStateChangesProvider, (_, _) => refresh.value++);
 
   final router = GoRouter(
     initialLocation: AppRoutes.splash,
@@ -36,9 +36,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
-      GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
-      GoRoute(path: AppRoutes.dashboard, builder: (_, __) => const DashboardScreen()),
+      GoRoute(path: AppRoutes.splash, builder: (_,_) => const SplashScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_,_) => const LoginScreen()),
+      GoRoute(path: AppRoutes.dashboard, builder: (_,_) => const DashboardScreen()),
     ],
   );
 
