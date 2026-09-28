@@ -17,7 +17,7 @@ final leadsRepositoryProvider = Provider<LeadsRepository>((ref) {
   return LeadsRepositoryImpl(dataSource);
 });
 
-final leadsStreamProvider = StreamProvider<List<Lead>>((ref) {
+final leadsStreamProvider = StreamProvider.autoDispose<List<Lead>>((ref) {
   final repository = ref.watch(leadsRepositoryProvider);
   return repository.watchLeads();
 });
