@@ -1,44 +1,47 @@
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
+import '../../features/auth/presentation/screens/splash_screen.dart';
 import '../../features/leads/presentation/screens/dashboard_screen.dart';
-
-class _RouterRefreshStream extends ChangeNotifier {
-  late final StreamSubscription<dynamic> _subscription;
-
-  _RouterRefreshStream(Stream<dynamic> stream) {
-    notifyListeners();
-    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
-  }
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
-  }
-}
+import 'app_routes.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authRepository = ref.watch(authRepositoryProvider);
-  final authState = ref.watch(authStateChangesProvider);
+  final refresh = ValueNotifier<int>(0);
+  ref.onDispose(refresh.dispose);
+  ref.listen(authStateChangesProvider, (_, _) => refresh.value++);
 
-  return GoRouter(
-    initialLocation: '/login',
-    refreshListenable: _RouterRefreshStream(authRepository.authStateChanges),
+  final router = GoRouter(
+    initialLocation: AppRoutes.splash,
+    refreshListenable: refresh,
     redirect: (context, state) {
-      final isLoggedIn = authState.value != null;
-      final isLoggingIn = state.matchedLocation == '/login';
+      final auth = ref.read(authStateChangesProvider);
+      final location = state.matchedLocation;
 
-      if (!isLoggedIn && !isLoggingIn) return '/login';
-      if (isLoggedIn && isLoggingIn) return '/dashboard';
+      if (auth.isLoading && !auth.hasValue) {
+        return location == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      final isLoggedIn = auth.value != null;
+
+      if (!isLoggedIn) {
+        return location == AppRoutes.login ? null : AppRoutes.login;
+      }
+
+      if (location == AppRoutes.login || location == AppRoutes.splash) {
+        return AppRoutes.dashboard;
+      }
       return null;
     },
     routes: [
-      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      GoRoute(path: '/dashboard', builder: (context, state) => const DashboardScreen()),
+      GoRoute(path: AppRoutes.splash, builder: (_,_) => const SplashScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_,_) => const LoginScreen()),
+      GoRoute(path: AppRoutes.dashboard, builder: (_,_) => const DashboardScreen()),
     ],
   );
+
+  ref.onDispose(router.dispose);
+  return router;
 });
