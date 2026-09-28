@@ -1,3 +1,6 @@
+import 'package:crm_app/core/error/guard.dart';
+import 'package:crm_app/core/error/result.dart';
+
 import '../../domain/entities/lead.dart';
 import '../../domain/repositories/leads_repository.dart';
 import '../datasources/leads_remote_datasource.dart';
@@ -8,20 +11,20 @@ class LeadsRepositoryImpl implements LeadsRepository {
   LeadsRepositoryImpl(this._dataSource);
 
   @override
-  Stream<List<Lead>> watchLeads() => _dataSource.watchLeads();
+  Stream<List<Lead>> watchLeads() => guardStream(_dataSource.watchLeads());
 
   @override
-  Future<void> updateStatus({required String leadId, required LeadStatus status}) {
-    return _dataSource.updateStatus(leadId: leadId, statusLabel: status.label);
+  Future<Result<void>> updateStatus({required String leadId, required LeadStatus status}) {
+    return guard(() => _dataSource.updateStatus(leadId: leadId, statusLabel: status.label));
   }
 
   @override
-  Future<void> updatePriority({required String leadId, required LeadPriority priority}) {
-    return _dataSource.updatePriority(leadId: leadId, priorityLabel: priority.label);
+  Future<Result<void>> updatePriority({required String leadId, required LeadPriority priority}) {
+    return guard(() => _dataSource.updatePriority(leadId: leadId, priorityLabel: priority.label));
   }
 
   @override
-  Future<void> addNote({required String leadId, required String note}) {
-    return _dataSource.addNote(leadId: leadId, note: note);
+  Future<Result<void>> addNote({required String leadId, required String note}) {
+    return guard(() => _dataSource.addNote(leadId: leadId, note: note));
   }
 }

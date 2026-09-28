@@ -1,3 +1,4 @@
+import 'package:crm_app/core/error/failures.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -27,7 +28,7 @@ class DashboardScreen extends ConsumerWidget {
           child: leadsAsync.when(
             loading: () => const _DashboardLoading(),
             error: (error, _) => _DashboardError(
-              error: error.toString(),
+              error: failureMessage(error),
               onRetry: () {
                 ref.invalidate(leadsStreamProvider);
               },
