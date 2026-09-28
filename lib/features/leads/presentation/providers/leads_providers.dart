@@ -1,4 +1,5 @@
 import 'package:crm_app/core/error/result.dart';
+import 'package:crm_app/features/leads/domain/entities/lead_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/supabase_provider.dart';
@@ -47,3 +48,8 @@ final leadsControllerProvider = Provider<LeadsController>((ref) {
   final repository = ref.watch(leadsRepositoryProvider);
   return LeadsController(repository);
 });
+
+final leadNotesProvider =
+    FutureProvider.autoDispose.family<Result<List<LeadNote>>, String>(
+  (ref, leadId) => ref.watch(leadsRepositoryProvider).getNotes(leadId),
+);
