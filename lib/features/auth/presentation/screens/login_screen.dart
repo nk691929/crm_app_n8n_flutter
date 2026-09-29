@@ -74,6 +74,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     ref.listen(authControllerProvider, (previous, next) {
       next.whenOrNull(
@@ -118,12 +120,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFF8FAFC), Color(0xFFEEF2FF), Color(0xFFF8FAFC)],
-          ),
+        decoration: BoxDecoration(
+          gradient: isDark
+              ? const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF0F172A),
+                    Color(0xFF1E1B4B),
+                    Color(0xFF0F172A),
+                  ],
+                )
+              : const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFF8FAFC),
+                    Color(0xFFEEF2FF),
+                    Color(0xFFF8FAFC),
+                  ],
+                ),
         ),
         child: Stack(
           children: [
@@ -141,15 +157,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         constraints: const BoxConstraints(maxWidth: 440),
                         child: Column(
                           children: [
-                            _buildBrandHeader(),
+                            _buildBrandHeader(colors),
 
                             const SizedBox(height: 28),
 
-                            _buildLoginCard(authState.isLoading),
+                            _buildLoginCard(authState.isLoading, colors),
 
                             const SizedBox(height: 24),
 
-                            _buildFooter(),
+                            _buildFooter(colors),
                           ],
                         ),
                       ),
@@ -197,7 +213,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildBrandHeader() {
+  Widget _buildBrandHeader(ColorScheme colors) {
     return Column(
       children: [
         Container(
@@ -227,24 +243,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
         const SizedBox(height: 20),
 
-        const Text(
+        Text(
           'CRM Admin',
           style: TextStyle(
             fontSize: 30,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.8,
-            color: Color(0xFF111827),
+            color: colors.onSurface,
           ),
         ),
 
         const SizedBox(height: 6),
 
-        const Text(
+        Text(
           'Manage your leads. Grow your business.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF6B7280),
+            color: colors.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -252,16 +268,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildLoginCard(bool isLoading) {
+  Widget _buildLoginCard(bool isLoading, ColorScheme colors) {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.94),
+        color: colors.surface.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: Colors.white, width: 1.5),
+        border: Border.all(color: colors.outlineVariant, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: colors.shadow.withValues(alpha: 0.06),
             blurRadius: 40,
             offset: const Offset(0, 20),
           ),
@@ -272,25 +288,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Welcome back',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111827),
+                color: colors.onSurface,
               ),
             ),
 
             const SizedBox(height: 6),
 
-            const Text(
+            Text(
               'Sign in to access your CRM dashboard.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
+              style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant),
             ),
 
             const SizedBox(height: 26),
 
-            _fieldLabel('Email address'),
+            _fieldLabel('Email address', colors),
 
             const SizedBox(height: 8),
 
@@ -303,6 +319,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               decoration: _inputDecoration(
                 hintText: 'you@example.com',
                 icon: Icons.email_outlined,
+                colors: colors,
               ),
               validator: (value) {
                 final email = value?.trim() ?? '';
@@ -321,7 +338,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
             const SizedBox(height: 20),
 
-            _fieldLabel('Password'),
+            _fieldLabel('Password', colors),
 
             const SizedBox(height: 8),
 
@@ -335,6 +352,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   _inputDecoration(
                     hintText: 'Enter your password',
                     icon: Icons.lock_outline_rounded,
+                    colors: colors,
                   ).copyWith(
                     suffixIcon: IconButton(
                       tooltip: _obscurePassword
@@ -351,7 +369,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         _obscurePassword
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
-                        color: const Color(0xFF6B7280),
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -422,13 +440,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _fieldLabel(String text) {
+  Widget _fieldLabel(String text, ColorScheme colors) {
     return Text(
       text,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w700,
-        color: Color(0xFF374151),
+        color: colors.onSurfaceVariant,
       ),
     );
   }
@@ -436,21 +454,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   InputDecoration _inputDecoration({
     required String hintText,
     required IconData icon,
+    required ColorScheme colors,
   }) {
     return InputDecoration(
       hintText: hintText,
-      hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
-      prefixIcon: Icon(icon, color: const Color(0xFF6B7280), size: 20),
+      hintStyle: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
+      prefixIcon: Icon(icon, color: colors.onSurfaceVariant, size: 20),
       filled: true,
-      fillColor: const Color(0xFFF9FAFB),
+      fillColor: colors.surfaceContainerHighest,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        borderSide: BorderSide(color: colors.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+        borderSide: BorderSide(color: colors.outlineVariant),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
@@ -467,21 +486,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(ColorScheme colors) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(
+        Icon(
           Icons.lock_outline_rounded,
           size: 14,
-          color: Color(0xFF9CA3AF),
+          color: colors.onSurfaceVariant,
         ),
         const SizedBox(width: 6),
         Text(
           'Secure admin access',
           style: TextStyle(
             fontSize: 11,
-            color: Colors.grey.shade500,
+            color: colors.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
