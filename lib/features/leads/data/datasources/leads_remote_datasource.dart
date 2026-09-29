@@ -1,5 +1,7 @@
 import 'package:crm_app/core/error/exceptions.dart';
+import 'package:crm_app/features/leads/data/models/interaction_model.dart';
 import 'package:crm_app/features/leads/data/models/lead_note_model.dart';
+import 'package:crm_app/features/leads/domain/entities/interaction.dart';
 import 'package:crm_app/features/leads/domain/entities/lead_note.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -54,5 +56,22 @@ class LeadsRemoteDataSource {
         .eq('lead_id', leadId)
         .order('created_at', ascending: false);
     return rows.map(LeadNoteModel.fromJson).toList();
+  }
+
+    Future<List<Interaction>> fetchInteractions(String leadId) async {
+    final rows = await _client
+        .from('interactions')
+        .select()
+        .eq('lead_id', leadId)
+        .order('created_at', ascending: false);
+    return rows.map(InteractionModel.fromJson).toList();
+  }
+
+  Future<void> logInteraction({required String leadId, required String message}) async {
+    await _client.from('interactions').insert({
+      'lead_id': leadId,
+      'message': message,
+      'direction': InteractionModel.directionToDb(InteractionDirection.system),
+    });
   }
 }

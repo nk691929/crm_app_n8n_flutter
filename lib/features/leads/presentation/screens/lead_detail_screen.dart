@@ -1,3 +1,4 @@
+import 'package:crm_app/features/leads/domain/entities/interaction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -233,6 +234,11 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               _buildMessageCard(lead.message!),
             ],
 
+            const SizedBox(height: 24),
+
+            _sectionTitle('Activity Log', 'Automatic record of changes'),
+            const SizedBox(height: 12),
+            _buildInteractionLog(),
             const SizedBox(height: 24),
 
             _sectionTitle('Notes', 'Everything logged for this lead'),
@@ -670,6 +676,74 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildInteractionLog() {
+    final interactionsAsync = ref.watch(
+      leadInteractionsProvider(widget.lead.id),
+    );
+
+    return interactionsAsync.when(
+      skipLoadingOnReload: true,
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => _card(child: Text(failureMessage(error))),
+      data: (result) => switch (result) {
+        Err(:final failure) => _card(child: Text(failure.message)),
+        Success(:final value) when value.isEmpty => _card(
+          child: const Text(
+            'No activity logged yet.',
+            style: TextStyle(color: Color(0xFF6B7280)),
+          ),
+        ),
+        Success(:final value) => _card(
+          child: Column(
+            children: [
+              for (var i = 0; i < value.length; i++) ...[
+                _interactionItem(value[i]),
+                if (i != value.length - 1) _cardDivider(),
+              ],
+            ],
+          ),
+        ),
+      },
+    );
+  }
+
+  Widget _interactionItem(Interaction interaction) {
+    final icon = interaction.direction == InteractionDirection.outbound
+        ? Icons.send_rounded
+        : Icons.swap_horiz_rounded;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: const Color(0xFF6B7280)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                interaction.message,
+                style: const TextStyle(fontSize: 14, color: Color(0xFF374151)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _formatDate(interaction.createdAt),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF9CA3AF),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
