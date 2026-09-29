@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
@@ -35,6 +34,7 @@ abstract final class AppTheme {
     );
   }
 }
+
 abstract final class StatusColors {
   static const newLead = Color(0xFF6366F1);
   static const contacted = Color(0xFF0EA5E9);
