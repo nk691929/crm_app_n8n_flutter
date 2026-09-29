@@ -1,4 +1,5 @@
 import 'package:crm_app/core/error/failures.dart';
+import 'package:crm_app/features/leads/presentation/providers/leads_filter_provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,20 +11,34 @@ import '../providers/leads_providers.dart';
 import '../widgets/lead_card.dart';
 import 'lead_detail_screen.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   static const Color primaryColor = Color(0xFF5B5FEF);
   static const Color backgroundColor = Color(0xFFF7F8FC);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final leadsAsync = ref.watch(leadsStreamProvider);
+    final filter = ref.watch(leadsFilterProvider);
 
     return DefaultTabController(
       length: LeadStatus.values.length,
       child: Scaffold(
-        backgroundColor: backgroundColor,
+        backgroundColor: DashboardScreen.backgroundColor,
         body: SafeArea(
           child: leadsAsync.when(
             loading: () => const _DashboardLoading(),
@@ -35,6 +50,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             data: (leads) {
               final totalLeads = leads.length;
+              final filteredLeads = applyLeadsFilter(leads, filter);
 
               final highPriorityLeads = leads
                   .where((lead) => lead.priority == LeadPriority.high)
@@ -105,6 +121,9 @@ class DashboardScreen extends ConsumerWidget {
                                   ),
                             ),
 
+                            const SizedBox(height: 16),
+                            _buildSearchAndFilter(),
+
                             const SizedBox(height: 12),
                           ],
                         ),
@@ -115,7 +134,7 @@ class DashboardScreen extends ConsumerWidget {
                       pinned: true,
                       delegate: _TabBarDelegate(
                         child: Container(
-                          color: backgroundColor,
+                          color: DashboardScreen.backgroundColor,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: _buildTabBar(context),
                         ),
@@ -125,12 +144,15 @@ class DashboardScreen extends ConsumerWidget {
                 },
                 body: TabBarView(
                   children: LeadStatus.values.map((status) {
-                    final filtered = leads
+                    final filtered = filteredLeads
                         .where((lead) => lead.status == status)
                         .toList();
 
                     if (filtered.isEmpty) {
-                      return const _EmptyLeadsState();
+                      return _EmptyLeadsState(
+                        isFiltered:
+                            filter.query.isNotEmpty || filter.priority != null,
+                      );
                     }
 
                     return ListView.builder(
@@ -191,7 +213,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: primaryColor.withValues(alpha: 0.20),
+                color: DashboardScreen.primaryColor.withValues(alpha: 0.20),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -234,6 +256,93 @@ class DashboardScreen extends ConsumerWidget {
           onPressed: () {
             ref.read(authControllerProvider.notifier).signOut();
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchAndFilter() {
+    final filter = ref.watch(leadsFilterProvider);
+
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 46,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.search_rounded,
+                  size: 20,
+                  color: Colors.grey.shade500,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'Search name, phone, or email',
+                      border: InputBorder.none,
+                      isDense: true,
+                    ),
+                    onChanged: (value) =>
+                        ref.read(leadsFilterProvider.notifier).setQuery(value),
+                  ),
+                ),
+                if (_searchController.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      _searchController.clear();
+                      ref.read(leadsFilterProvider.notifier).setQuery('');
+                    },
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        PopupMenuButton<LeadPriority?>(
+          initialValue: filter.priority,
+          onSelected: (value) =>
+              ref.read(leadsFilterProvider.notifier).setPriority(value),
+          itemBuilder: (context) => [
+            const PopupMenuItem(value: null, child: Text('All priorities')),
+            ...LeadPriority.values.map(
+              (p) => PopupMenuItem(value: p, child: Text(p.label)),
+            ),
+          ],
+          child: Container(
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: filter.priority != null
+                  ? DashboardScreen.primaryColor
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: filter.priority != null
+                    ? DashboardScreen.primaryColor
+                    : Colors.grey.shade200,
+              ),
+            ),
+            child: Icon(
+              Icons.tune_rounded,
+              color: filter.priority != null
+                  ? Colors.white
+                  : Colors.grey.shade700,
+            ),
+          ),
         ),
       ],
     );
@@ -310,7 +419,11 @@ class DashboardScreen extends ConsumerWidget {
           child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.insights_rounded, size: 16, color: primaryColor),
+              Icon(
+                Icons.insights_rounded,
+                size: 16,
+                color: DashboardScreen.primaryColor,
+              ),
               SizedBox(width: 5),
               Text(
                 'Live',
@@ -460,7 +573,7 @@ class DashboardScreen extends ConsumerWidget {
         dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          color: primaryColor,
+          color: DashboardScreen.primaryColor,
           borderRadius: BorderRadius.circular(11),
         ),
         labelColor: Colors.white,
@@ -604,7 +717,9 @@ class _StatCard extends StatelessWidget {
 }
 
 class _EmptyLeadsState extends StatelessWidget {
-  const _EmptyLeadsState();
+  final bool isFiltered;
+
+  const _EmptyLeadsState({this.isFiltered = false});
 
   @override
   Widget build(BuildContext context) {
@@ -628,13 +743,15 @@ class _EmptyLeadsState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'No leads here yet',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            Text(
+              isFiltered ? 'No matching leads' : 'No leads here yet',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 7),
             Text(
-              'Add a new lead to start building your pipeline.',
+              isFiltered
+                  ? 'Try a different name, phone, or filter.'
+                  : 'Add a new lead to start building your pipeline.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
             ),
