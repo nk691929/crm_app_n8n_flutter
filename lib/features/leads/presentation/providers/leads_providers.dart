@@ -41,11 +41,17 @@ class LeadsController {
 
   LeadsController(this._updateLeadStatus, this._addLeadNote, this._repository);
 
-  Future<Result<void>> updateStatus({required Lead lead, required LeadStatus newStatus}) {
+  Future<Result<void>> updateStatus({
+    required Lead lead,
+    required LeadStatus newStatus,
+  }) {
     return _updateLeadStatus(lead: lead, newStatus: newStatus);
   }
 
-  Future<Result<void>> updatePriority({required String leadId, required LeadPriority priority}) {
+  Future<Result<void>> updatePriority({
+    required String leadId,
+    required LeadPriority priority,
+  }) {
     return _repository.updatePriority(leadId: leadId, priority: priority);
   }
 
@@ -62,12 +68,13 @@ final leadsControllerProvider = Provider<LeadsController>((ref) {
   );
 });
 
-final leadNotesProvider =
-    FutureProvider.autoDispose.family<Result<List<LeadNote>>, String>(
-  (ref, leadId) => ref.watch(leadsRepositoryProvider).getNotes(leadId),
-);
+final leadNotesProvider = FutureProvider.autoDispose
+    .family<Result<List<LeadNote>>, String>(
+      (ref, leadId) => ref.watch(leadsRepositoryProvider).getNotes(leadId),
+    );
 
-final leadInteractionsProvider =
-    FutureProvider.autoDispose.family<Result<List<Interaction>>, String>(
-  (ref, leadId) => ref.watch(leadsRepositoryProvider).getInteractions(leadId),
-);
+final leadInteractionsProvider = FutureProvider.autoDispose
+    .family<Result<List<Interaction>>, String>(
+      (ref, leadId) =>
+          ref.watch(leadsRepositoryProvider).getInteractions(leadId),
+    );

@@ -9,15 +9,21 @@ sealed class Failure extends Equatable {
 }
 
 final class NetworkFailure extends Failure {
-  const NetworkFailure([super.message = 'No internet connection. Please try again.']);
+  const NetworkFailure([
+    super.message = 'No internet connection. Please try again.',
+  ]);
 }
 
 final class AuthFailure extends Failure {
-  const AuthFailure([super.message = 'Authentication failed. Please sign in again.']);
+  const AuthFailure([
+    super.message = 'Authentication failed. Please sign in again.',
+  ]);
 }
 
 final class PermissionFailure extends Failure {
-  const PermissionFailure([super.message = 'You do not have permission to do this.']);
+  const PermissionFailure([
+    super.message = 'You do not have permission to do this.',
+  ]);
 }
 
 final class NotFoundFailure extends Failure {
@@ -25,7 +31,9 @@ final class NotFoundFailure extends Failure {
 }
 
 final class ServerFailure extends Failure {
-  const ServerFailure([super.message = 'Server error. Please try again later.']);
+  const ServerFailure([
+    super.message = 'Server error. Please try again later.',
+  ]);
 }
 
 final class ValidationFailure extends Failure {
@@ -33,7 +41,9 @@ final class ValidationFailure extends Failure {
 }
 
 final class UnknownFailure extends Failure {
-  const UnknownFailure([super.message = 'Something went wrong. Please try again.']);
+  const UnknownFailure([
+    super.message = 'Something went wrong. Please try again.',
+  ]);
 }
 
 String failureMessage(Object error) =>

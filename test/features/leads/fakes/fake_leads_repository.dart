@@ -40,15 +40,17 @@ class FakeLeadsRepository implements LeadsRepository {
   Future<Result<void>> updatePriority({
     required String leadId,
     required LeadPriority priority,
-  }) async =>
-      const Success(null);
+  }) async => const Success(null);
 
   @override
-  Future<Result<void>> addNote({required String leadId, required String note}) async =>
-      const Success(null);
+  Future<Result<void>> addNote({
+    required String leadId,
+    required String note,
+  }) async => const Success(null);
 
   @override
-  Future<Result<List<LeadNote>>> getNotes(String leadId) async => const Success([]);
+  Future<Result<List<LeadNote>>> getNotes(String leadId) async =>
+      const Success([]);
 
   @override
   Future<Result<List<Interaction>>> getInteractions(String leadId) async =>

@@ -1,16 +1,22 @@
 import 'package:equatable/equatable.dart';
 
 enum LeadStatus { newLead, contacted, qualified, won, lost }
+
 enum LeadPriority { high, medium, low }
 
 extension LeadStatusX on LeadStatus {
   String get label {
     switch (this) {
-      case LeadStatus.newLead: return 'New';
-      case LeadStatus.contacted: return 'Contacted';
-      case LeadStatus.qualified: return 'Qualified';
-      case LeadStatus.won: return 'Won';
-      case LeadStatus.lost: return 'Lost';
+      case LeadStatus.newLead:
+        return 'New';
+      case LeadStatus.contacted:
+        return 'Contacted';
+      case LeadStatus.qualified:
+        return 'Qualified';
+      case LeadStatus.won:
+        return 'Won';
+      case LeadStatus.lost:
+        return 'Lost';
     }
   }
 
@@ -25,9 +31,12 @@ extension LeadStatusX on LeadStatus {
 extension LeadPriorityX on LeadPriority {
   String get label {
     switch (this) {
-      case LeadPriority.high: return 'High';
-      case LeadPriority.medium: return 'Medium';
-      case LeadPriority.low: return 'Low';
+      case LeadPriority.high:
+        return 'High';
+      case LeadPriority.medium:
+        return 'Medium';
+      case LeadPriority.low:
+        return 'Low';
     }
   }
 
@@ -100,8 +109,20 @@ class Lead extends Equatable {
 
   @override
   List<Object?> get props => [
-        id, name, phone, email, serviceInterested, budget, message,
-        status, priority, assignedTo, createdAt, updatedAt,
-        lastContactedAt, nextFollowUpAt, followUpCount,
-      ];
+    id,
+    name,
+    phone,
+    email,
+    serviceInterested,
+    budget,
+    message,
+    status,
+    priority,
+    assignedTo,
+    createdAt,
+    updatedAt,
+    lastContactedAt,
+    nextFollowUpAt,
+    followUpCount,
+  ];
 }

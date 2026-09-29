@@ -36,9 +36,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: AppRoutes.splash, builder: (_,_) => const SplashScreen()),
-      GoRoute(path: AppRoutes.login, builder: (_,_) => const LoginScreen()),
-      GoRoute(path: AppRoutes.dashboard, builder: (_,_) => const DashboardScreen()),
+      GoRoute(path: AppRoutes.splash, builder: (_, _) => const SplashScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(
+        path: AppRoutes.dashboard,
+        builder: (_, _) => const DashboardScreen(),
+      ),
     ],
   );
 

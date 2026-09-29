@@ -1,5 +1,6 @@
 import 'package:crm_app/features/auth/domain/entities/app_user.dart';
 import 'package:crm_app/features/auth/domain/repositories/auth_repository.dart';
+
 import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -8,7 +9,10 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._dataSource);
 
   @override
-  Future<AppUser> signIn({required String email, required String password}) async {
+  Future<AppUser> signIn({
+    required String email,
+    required String password,
+  }) async {
     final user = await _dataSource.signIn(email: email, password: password);
     return AppUser(id: user.id, email: user.email ?? '');
   }

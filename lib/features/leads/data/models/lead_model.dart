@@ -11,7 +11,9 @@ class LeadModel {
       budget: json['budget'] as String?,
       message: json['message'] as String?,
       status: LeadStatusX.fromLabel(json['status'] as String? ?? 'New'),
-      priority: LeadPriorityX.fromLabel(json['priority'] as String? ?? 'Medium'),
+      priority: LeadPriorityX.fromLabel(
+        json['priority'] as String? ?? 'Medium',
+      ),
       assignedTo: json['assigned_to'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),

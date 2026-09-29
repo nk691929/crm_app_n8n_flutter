@@ -17,7 +17,10 @@ class UpdateLeadStatus {
   static const _terminal = {LeadStatus.won, LeadStatus.lost};
   static const _reopenTargets = {LeadStatus.contacted, LeadStatus.qualified};
 
-  Future<Result<void>> call({required Lead lead, required LeadStatus newStatus}) {
+  Future<Result<void>> call({
+    required Lead lead,
+    required LeadStatus newStatus,
+  }) {
     if (newStatus == lead.status) {
       return Future.value(
         Err(ValidationFailure('${lead.name} is already ${newStatus.label}.')),
@@ -26,9 +29,11 @@ class UpdateLeadStatus {
 
     if (!_isAllowed(lead.status, newStatus)) {
       return Future.value(
-        Err(ValidationFailure(
-          'Cannot move a lead from ${lead.status.label} to ${newStatus.label}.',
-        )),
+        Err(
+          ValidationFailure(
+            'Cannot move a lead from ${lead.status.label} to ${newStatus.label}.',
+          ),
+        ),
       );
     }
 
@@ -39,7 +44,9 @@ class UpdateLeadStatus {
       leadId: lead.id,
       status: newStatus,
       clearNextFollowUp: isClosing,
-      nextFollowUpAt: isReopening ? DateTime.now().add(const Duration(days: 3)) : null,
+      nextFollowUpAt: isReopening
+          ? DateTime.now().add(const Duration(days: 3))
+          : null,
       followUpCount: isReopening ? 0 : null,
     );
   }
@@ -47,6 +54,7 @@ class UpdateLeadStatus {
   bool _isAllowed(LeadStatus from, LeadStatus to) {
     if (_terminal.contains(from)) return _reopenTargets.contains(to);
     if (_terminal.contains(to)) return true; // any active lead can close
-    return _activeOrder[to]! >= _activeOrder[from]!; // forward-only within the pipeline
+    return _activeOrder[to]! >=
+        _activeOrder[from]!; // forward-only within the pipeline
   }
 }
