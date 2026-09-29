@@ -918,7 +918,10 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
           border: InputBorder.none,
           prefixIcon: Padding(
             padding: const EdgeInsets.only(left: 4, right: 8, bottom: 65),
-            child: Icon(Icons.edit_note_rounded, color: _colors.onSurfaceVariant),
+            child: Icon(
+              Icons.edit_note_rounded,
+              color: _colors.onSurfaceVariant,
+            ),
           ),
         ),
       ),
@@ -1031,11 +1034,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       children: [
         Text(
           note.text,
-          style: TextStyle(
-            height: 1.5,
-            fontSize: 14,
-            color: _colors.onSurface,
-          ),
+          style: TextStyle(height: 1.5, fontSize: 14, color: _colors.onSurface),
         ),
         const SizedBox(height: 6),
         Text(
