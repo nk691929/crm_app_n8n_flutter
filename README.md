@@ -95,7 +95,12 @@ lib/
 
 **`notes`** — freeform admin notes per lead, linked via `lead_id`.
 
-Row Level Security is enabled on all three tables, restricted to authenticated users.
+Security: interactions, notes, and leads tables were
+initially misconfigured with a public "Allow all for anon" policy,
+allowing unauthenticated read/write access. Audited and fixed by
+restricting all policies to the authenticated role; verified the
+anon key is rejected while the app and the service_role-based n8n
+workflow continue to work correctly.
 
 ## Setup
 

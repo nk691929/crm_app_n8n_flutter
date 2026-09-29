@@ -1,4 +1,5 @@
 import 'package:crm_app/core/error/result.dart';
+import 'package:crm_app/features/leads/domain/entities/interaction.dart';
 import 'package:crm_app/features/leads/domain/entities/lead_note.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,4 +53,9 @@ final leadsControllerProvider = Provider<LeadsController>((ref) {
 final leadNotesProvider =
     FutureProvider.autoDispose.family<Result<List<LeadNote>>, String>(
   (ref, leadId) => ref.watch(leadsRepositoryProvider).getNotes(leadId),
+);
+
+final leadInteractionsProvider =
+    FutureProvider.autoDispose.family<Result<List<Interaction>>, String>(
+  (ref, leadId) => ref.watch(leadsRepositoryProvider).getInteractions(leadId),
 );
