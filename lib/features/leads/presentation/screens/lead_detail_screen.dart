@@ -48,10 +48,10 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     final previous = _status;
     setState(() => _status = newStatus);
 
-    final result = await ref
-        .read(leadsControllerProvider)
-        .updateStatus(leadId: widget.lead.id, status: newStatus);
-
+    final result = await ref.read(leadsControllerProvider).updateStatus(
+      lead: widget.lead,
+      newStatus: newStatus,
+    );
     if (!mounted) return;
 
     if (result case Err(:final failure)) {

@@ -10,6 +10,9 @@ abstract class LeadsRepository {
   Future<Result<void>> updateStatus({
     required String leadId,
     required LeadStatus status,
+    DateTime? nextFollowUpAt,
+    bool clearNextFollowUp = false,
+    int? followUpCount,
   });
   Future<Result<void>> updatePriority({
     required String leadId,

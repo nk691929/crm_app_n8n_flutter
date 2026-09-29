@@ -19,9 +19,18 @@ class LeadsRepositoryImpl implements LeadsRepository {
   Future<Result<void>> updateStatus({
     required String leadId,
     required LeadStatus status,
+    DateTime? nextFollowUpAt,
+    bool clearNextFollowUp = false,
+    int? followUpCount,
   }) {
     return guard(() async {
-      await _dataSource.updateStatus(leadId: leadId, statusLabel: status.label);
+      await _dataSource.updateStatus(
+        leadId: leadId,
+        statusLabel: status.label,
+        nextFollowUpAt: nextFollowUpAt,
+        clearNextFollowUp: clearNextFollowUp,
+        followUpCount: followUpCount,
+      );
       await _dataSource.logInteraction(
         leadId: leadId,
         message: 'Status changed to ${status.label}',
@@ -55,7 +64,7 @@ class LeadsRepositoryImpl implements LeadsRepository {
   Future<Result<List<LeadNote>>> getNotes(String leadId) =>
       guard(() => _dataSource.fetchNotes(leadId));
 
-        @override
+  @override
   Future<Result<List<Interaction>>> getInteractions(String leadId) =>
       guard(() => _dataSource.fetchInteractions(leadId));
 }
