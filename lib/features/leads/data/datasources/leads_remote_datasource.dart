@@ -1,4 +1,4 @@
-import 'package:crm_app/core/error/exceptions.dart';
+﻿import 'package:crm_app/core/error/exceptions.dart';
 import 'package:crm_app/features/leads/data/models/interaction_model.dart';
 import 'package:crm_app/features/leads/data/models/lead_note_model.dart';
 import 'package:crm_app/features/leads/domain/entities/interaction.dart';
@@ -24,10 +24,21 @@ class LeadsRemoteDataSource {
   Future<void> updateStatus({
     required String leadId,
     required String statusLabel,
+    DateTime? nextFollowUpAt,
+    bool clearNextFollowUp = false,
+    int? followUpCount,
   }) async {
+    final payload = <String, dynamic>{'status': statusLabel};
+    if (clearNextFollowUp) {
+      payload['next_follow_up_at'] = null;
+    } else if (nextFollowUpAt != null) {
+      payload['next_follow_up_at'] = nextFollowUpAt.toIso8601String();
+    }
+    if (followUpCount != null) payload['follow_up_count'] = followUpCount;
+
     final rows = await _client
         .from('leads')
-        .update({'status': statusLabel})
+        .update(payload)
         .eq('id', leadId)
         .select('id');
     if (rows.isEmpty) throw const NoRowsAffectedException();
@@ -49,7 +60,7 @@ class LeadsRemoteDataSource {
     await _client.from('notes').insert({'lead_id': leadId, 'note': note});
   }
 
-   Future<List<LeadNote>> fetchNotes(String leadId) async {
+  Future<List<LeadNote>> fetchNotes(String leadId) async {
     final rows = await _client
         .from('notes')
         .select()
@@ -58,7 +69,7 @@ class LeadsRemoteDataSource {
     return rows.map(LeadNoteModel.fromJson).toList();
   }
 
-    Future<List<Interaction>> fetchInteractions(String leadId) async {
+  Future<List<Interaction>> fetchInteractions(String leadId) async {
     final rows = await _client
         .from('interactions')
         .select()

@@ -1,6 +1,8 @@
 import 'package:crm_app/core/error/result.dart';
 import 'package:crm_app/features/leads/domain/entities/interaction.dart';
 import 'package:crm_app/features/leads/domain/entities/lead_note.dart';
+import 'package:crm_app/features/leads/domain/usecases/add_lead_note.dart';
+import 'package:crm_app/features/leads/domain/usecases/update_lead_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/supabase_provider.dart';
@@ -24,30 +26,40 @@ final leadsStreamProvider = StreamProvider.autoDispose<List<Lead>>((ref) {
   return repository.watchLeads();
 });
 
+final updateLeadStatusUseCaseProvider = Provider<UpdateLeadStatus>((ref) {
+  return UpdateLeadStatus(ref.watch(leadsRepositoryProvider));
+});
+
+final addLeadNoteUseCaseProvider = Provider<AddLeadNote>((ref) {
+  return AddLeadNote(ref.watch(leadsRepositoryProvider));
+});
+
 class LeadsController {
+  final UpdateLeadStatus _updateLeadStatus;
+  final AddLeadNote _addLeadNote;
   final LeadsRepository _repository;
 
-  LeadsController(this._repository);
+  LeadsController(this._updateLeadStatus, this._addLeadNote, this._repository);
 
-  Future<Result<void>> updateStatus({
-    required String leadId,
-    required LeadStatus status,
-  }) => _repository.updateStatus(leadId: leadId, status: status);
+  Future<Result<void>> updateStatus({required Lead lead, required LeadStatus newStatus}) {
+    return _updateLeadStatus(lead: lead, newStatus: newStatus);
+  }
 
-  Future<Result<void>> updatePriority({
-    required String leadId,
-    required LeadPriority priority,
-  }) => _repository.updatePriority(leadId: leadId, priority: priority);
+  Future<Result<void>> updatePriority({required String leadId, required LeadPriority priority}) {
+    return _repository.updatePriority(leadId: leadId, priority: priority);
+  }
 
-  Future<Result<void>> addNote({
-    required String leadId,
-    required String note,
-  }) => _repository.addNote(leadId: leadId, note: note);
+  Future<Result<void>> addNote({required String leadId, required String note}) {
+    return _addLeadNote(leadId: leadId, note: note);
+  }
 }
 
 final leadsControllerProvider = Provider<LeadsController>((ref) {
-  final repository = ref.watch(leadsRepositoryProvider);
-  return LeadsController(repository);
+  return LeadsController(
+    ref.watch(updateLeadStatusUseCaseProvider),
+    ref.watch(addLeadNoteUseCaseProvider),
+    ref.watch(leadsRepositoryProvider),
+  );
 });
 
 final leadNotesProvider =
