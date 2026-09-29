@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../domain/entities/lead.dart';
 
 class LeadCard extends StatelessWidget {
@@ -11,22 +12,23 @@ class LeadCard extends StatelessWidget {
   Color _priorityColor(LeadPriority priority) {
     switch (priority) {
       case LeadPriority.high:
-        return const Color(0xFFEF4444);
+        return PriorityColors.high;
       case LeadPriority.medium:
-        return const Color(0xFFF59E0B);
+        return PriorityColors.medium;
       case LeadPriority.low:
-        return const Color(0xFF10B981);
+        return PriorityColors.low;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final priorityColor = _priorityColor(lead.priority);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
-        color: Colors.white,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           onTap: onTap,
@@ -36,10 +38,10 @@ class LeadCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.grey.shade100),
+              border: Border.all(color: colors.outlineVariant),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.025),
+                  color: colors.shadow.withValues(alpha: 0.025),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -48,9 +50,7 @@ class LeadCard extends StatelessWidget {
             child: Row(
               children: [
                 _LeadAvatar(name: lead.name, color: priorityColor),
-
                 const SizedBox(width: 13),
-
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,10 +62,11 @@ class LeadCard extends StatelessWidget {
                               lead.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: -0.2,
+                                color: colors.onSurface,
                               ),
                             ),
                           ),
@@ -76,29 +77,25 @@ class LeadCard extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 6),
-
                       Text(
                         lead.serviceInterested ?? 'No service specified',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey.shade600,
+                          color: colors.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-
                       const SizedBox(height: 9),
-
                       Row(
                         children: [
                           if (lead.budget != null) ...[
                             Icon(
                               Icons.payments_outlined,
                               size: 14,
-                              color: Colors.grey.shade500,
+                              color: colors.onSurfaceVariant,
                             ),
                             const SizedBox(width: 4),
                             Flexible(
@@ -108,7 +105,7 @@ class LeadCard extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.grey.shade600,
+                                  color: colors.onSurfaceVariant,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -118,7 +115,7 @@ class LeadCard extends StatelessWidget {
                           Icon(
                             Icons.phone_outlined,
                             size: 14,
-                            color: Colors.grey.shade500,
+                            color: colors.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Flexible(
@@ -128,7 +125,7 @@ class LeadCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey.shade600,
+                                color: colors.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -138,20 +135,18 @@ class LeadCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
                 Container(
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF6F7FB),
+                    color: colors.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(11),
                   ),
                   child: Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 13,
-                    color: Colors.grey.shade600,
+                    color: colors.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -177,7 +172,7 @@ class _LeadAvatar extends StatelessWidget {
               .trim()
               .split(RegExp(r'\s+'))
               .take(2)
-              .map((part) => part[0].toUpperCase())
+              .map((p) => p[0].toUpperCase())
               .join();
 
     return Container(
