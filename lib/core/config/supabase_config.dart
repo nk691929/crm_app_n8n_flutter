@@ -8,7 +8,10 @@ class SupabaseConfig {
   static Future<void> initialize() async {
     await dotenv.load(fileName: '.env');
 
-    await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
+    await Supabase.initialize(
+      url: supabaseUrl,
+      publishableKey: supabaseAnonKey,
+    );
   }
 
   static SupabaseClient get client => Supabase.instance.client;

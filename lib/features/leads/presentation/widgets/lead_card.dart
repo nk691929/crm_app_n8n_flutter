@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../domain/entities/lead.dart';
@@ -7,11 +6,7 @@ class LeadCard extends StatelessWidget {
   final Lead lead;
   final VoidCallback onTap;
 
-  const LeadCard({
-    super.key,
-    required this.lead,
-    required this.onTap,
-  });
+  const LeadCard({super.key, required this.lead, required this.onTap});
 
   Color _priorityColor(LeadPriority priority) {
     switch (priority) {
@@ -41,9 +36,7 @@ class LeadCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.grey.shade100,
-              ),
+              border: Border.all(color: Colors.grey.shade100),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.025),
@@ -54,10 +47,7 @@ class LeadCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _LeadAvatar(
-                  name: lead.name,
-                  color: priorityColor,
-                ),
+                _LeadAvatar(name: lead.name, color: priorityColor),
 
                 const SizedBox(width: 13),
 
@@ -90,8 +80,7 @@ class LeadCard extends StatelessWidget {
                       const SizedBox(height: 6),
 
                       Text(
-                        lead.serviceInterested ??
-                            'No service specified',
+                        lead.serviceInterested ?? 'No service specified',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -178,21 +167,18 @@ class _LeadAvatar extends StatelessWidget {
   final String name;
   final Color color;
 
-  const _LeadAvatar({
-    required this.name,
-    required this.color,
-  });
+  const _LeadAvatar({required this.name, required this.color});
 
   @override
   Widget build(BuildContext context) {
     final initials = name.trim().isEmpty
         ? '?'
         : name
-            .trim()
-            .split(RegExp(r'\s+'))
-            .take(2)
-            .map((part) => part[0].toUpperCase())
-            .join();
+              .trim()
+              .split(RegExp(r'\s+'))
+              .take(2)
+              .map((part) => part[0].toUpperCase())
+              .join();
 
     return Container(
       width: 48,
@@ -219,18 +205,12 @@ class _PriorityBadge extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _PriorityBadge({
-    required this.label,
-    required this.color,
-  });
+  const _PriorityBadge({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 5,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.09),
         borderRadius: BorderRadius.circular(8),
@@ -241,10 +221,7 @@ class _PriorityBadge extends StatelessWidget {
           Container(
             width: 5,
             height: 5,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 5),
           Text(

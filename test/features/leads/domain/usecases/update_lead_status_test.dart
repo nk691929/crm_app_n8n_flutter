@@ -40,7 +40,10 @@ void main() {
 
       expect(result, isA<Err<void>>());
       expect((result as Err<void>).failure, isA<ValidationFailure>());
-      expect(repository.lastUpdatedLeadId, isNull); // repository was never called
+      expect(
+        repository.lastUpdatedLeadId,
+        isNull,
+      ); // repository was never called
     });
 
     test('Contacted -> New is rejected', () async {
@@ -71,15 +74,21 @@ void main() {
   });
 
   group('reopening a closed lead', () {
-    test('Won -> Contacted is allowed and resets the follow-up schedule', () async {
-      final lead = buildTestLead(status: LeadStatus.won);
-      final result = await useCase(lead: lead, newStatus: LeadStatus.contacted);
+    test(
+      'Won -> Contacted is allowed and resets the follow-up schedule',
+      () async {
+        final lead = buildTestLead(status: LeadStatus.won);
+        final result = await useCase(
+          lead: lead,
+          newStatus: LeadStatus.contacted,
+        );
 
-      expect(result, isA<Success<void>>());
-      expect(repository.lastFollowUpCount, 0);
-      expect(repository.lastNextFollowUpAt, isNotNull);
-      expect(repository.lastClearNextFollowUp, isFalse);
-    });
+        expect(result, isA<Success<void>>());
+        expect(repository.lastFollowUpCount, 0);
+        expect(repository.lastNextFollowUpAt, isNotNull);
+        expect(repository.lastClearNextFollowUp, isFalse);
+      },
+    );
 
     test('Won -> New is rejected — cannot reopen straight to New', () async {
       final lead = buildTestLead(status: LeadStatus.won);
@@ -88,12 +97,15 @@ void main() {
       expect(result, isA<Err<void>>());
     });
 
-    test('Lost -> Won is rejected — closed statuses cannot swap directly', () async {
-      final lead = buildTestLead(status: LeadStatus.lost);
-      final result = await useCase(lead: lead, newStatus: LeadStatus.won);
+    test(
+      'Lost -> Won is rejected — closed statuses cannot swap directly',
+      () async {
+        final lead = buildTestLead(status: LeadStatus.lost);
+        final result = await useCase(lead: lead, newStatus: LeadStatus.won);
 
-      expect(result, isA<Err<void>>());
-    });
+        expect(result, isA<Err<void>>());
+      },
+    );
   });
 
   group('no-op guard', () {

@@ -3,6 +3,7 @@ import 'package:crm_app/features/auth/domain/entities/app_user.dart';
 import 'package:crm_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 
@@ -41,6 +42,6 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 
 final authControllerProvider =
     StateNotifierProvider<AuthController, AsyncValue<void>>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return AuthController(repository);
-});
+      final repository = ref.watch(authRepositoryProvider);
+      return AuthController(repository);
+    });

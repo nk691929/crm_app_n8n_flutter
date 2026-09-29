@@ -1,4 +1,4 @@
-﻿import 'package:crm_app/core/error/exceptions.dart';
+import 'package:crm_app/core/error/exceptions.dart';
 import 'package:crm_app/features/leads/data/models/interaction_model.dart';
 import 'package:crm_app/features/leads/data/models/lead_note_model.dart';
 import 'package:crm_app/features/leads/domain/entities/interaction.dart';
@@ -78,7 +78,10 @@ class LeadsRemoteDataSource {
     return rows.map(InteractionModel.fromJson).toList();
   }
 
-  Future<void> logInteraction({required String leadId, required String message}) async {
+  Future<void> logInteraction({
+    required String leadId,
+    required String message,
+  }) async {
     await _client.from('interactions').insert({
       'lead_id': leadId,
       'message': message,

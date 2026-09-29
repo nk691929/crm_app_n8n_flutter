@@ -13,11 +13,15 @@ class AddLeadNote {
     final trimmed = note.trim();
 
     if (trimmed.isEmpty) {
-      return Future.value(const Err(ValidationFailure('Note cannot be empty.')));
+      return Future.value(
+        const Err(ValidationFailure('Note cannot be empty.')),
+      );
     }
     if (trimmed.length > _maxLength) {
       return Future.value(
-        Err(ValidationFailure('Note is too long (max $_maxLength characters).')),
+        Err(
+          ValidationFailure('Note is too long (max $_maxLength characters).'),
+        ),
       );
     }
 
