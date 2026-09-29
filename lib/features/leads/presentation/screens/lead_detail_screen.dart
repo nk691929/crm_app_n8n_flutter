@@ -10,6 +10,7 @@ import '../providers/leads_providers.dart';
 import 'package:crm_app/core/error/failures.dart';
 
 import '../../domain/entities/lead_note.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class LeadDetailScreen extends ConsumerStatefulWidget {
   final Lead lead;
@@ -23,6 +24,7 @@ class LeadDetailScreen extends ConsumerStatefulWidget {
 class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   late LeadStatus _status;
   late LeadPriority _priority;
+  ColorScheme get _colors => Theme.of(context).colorScheme;
 
   final _noteController = TextEditingController();
 
@@ -119,45 +121,40 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   Color _statusColor(LeadStatus status) {
     switch (status) {
       case LeadStatus.newLead:
-        return const Color(0xFF6366F1);
-
+        return StatusColors.newLead;
       case LeadStatus.contacted:
-        return const Color(0xFF0EA5E9);
-
+        return StatusColors.contacted;
       case LeadStatus.qualified:
-        return const Color(0xFF10B981);
-
+        return StatusColors.qualified;
       case LeadStatus.won:
-        return const Color(0xFF8B5CF6);
-
+        return StatusColors.won;
       case LeadStatus.lost:
-        return const Color(0xFFEF4444);
+        return StatusColors.lost;
     }
   }
 
   Color _priorityColor(LeadPriority priority) {
     switch (priority) {
       case LeadPriority.high:
-        return const Color(0xFFEF4444);
-
+        return PriorityColors.high;
       case LeadPriority.medium:
-        return const Color(0xFFF59E0B);
-
+        return PriorityColors.medium;
       case LeadPriority.low:
-        return const Color(0xFF10B981);
+        return PriorityColors.low;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final lead = widget.lead;
+    final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FC),
+      backgroundColor: colors.surface,
 
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: const Color(0xFFF7F8FC),
+        backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
 
         leading: IconButton(
@@ -261,12 +258,12 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               child: FilledButton.icon(
                 onPressed: _isSaving ? null : _addNote,
                 icon: _isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 19,
                         height: 19,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.white,
+                          color: _colors.surface,
                         ),
                       )
                     : const Icon(Icons.add_rounded),
@@ -295,14 +292,14 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF111827), Color(0xFF1F2937)],
+          colors: [_colors.primary, _colors.primaryContainer],
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
+            color: _colors.shadow.withValues(alpha: 0.12),
             blurRadius: 30,
             offset: const Offset(0, 12),
           ),
@@ -318,18 +315,19 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                 height: 62,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.10),
+                  color: _colors.surface.withValues(alpha: 0.10),
                   border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.15),
+                    color: _colors.surface.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Center(
                   child: Text(
                     _initials(lead.name),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
+                    style: TextStyle(
+                      color: _colors.onPrimary,
+                      fontSize: 22,
                       fontWeight: FontWeight.w800,
+                      height: 1.1,
                     ),
                   ),
                 ),
@@ -345,8 +343,8 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                       lead.name,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _colors.onPrimary,
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         height: 1.1,
@@ -360,7 +358,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.65),
+                        color: _colors.surface.withValues(alpha: 0.65),
                         fontSize: 13,
                       ),
                     ),
@@ -402,9 +400,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
+        color: _colors.surface.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        border: Border.all(color: _colors.surface.withValues(alpha: 0.08)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -415,8 +413,8 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: _colors.surface,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -430,9 +428,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: _colors.outlineVariant),
       ),
       child: Column(
         children: LeadStatus.values.map((status) {
@@ -473,8 +471,8 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                             ? FontWeight.w700
                             : FontWeight.w500,
                         color: selected
-                            ? const Color(0xFF111827)
-                            : const Color(0xFF6B7280),
+                            ? _colors.onSurface
+                            : _colors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -523,10 +521,10 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
+            color: _colors.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(13),
           ),
-          child: Icon(icon, size: 20, color: const Color(0xFF4B5563)),
+          child: Icon(icon, size: 20, color: _colors.onSurfaceVariant),
         ),
 
         const SizedBox(width: 14),
@@ -537,9 +535,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF9CA3AF),
+                  color: _colors.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -550,10 +548,10 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                 value,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF111827),
+                  color: _colors.onSurface,
                 ),
               ),
             ],
@@ -592,14 +590,14 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   }) {
     return Row(
       children: [
-        Icon(icon, size: 19, color: const Color(0xFF6B7280)),
+        Icon(icon, size: 19, color: _colors.onSurfaceVariant),
 
         const SizedBox(width: 12),
 
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(color: Color(0xFF6B7280), fontSize: 13),
+            style: TextStyle(color: _colors.onSurfaceVariant, fontSize: 13),
           ),
         ),
 
@@ -611,8 +609,8 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             textAlign: TextAlign.right,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Color(0xFF111827),
+            style: TextStyle(
+              color: _colors.onSurface,
               fontWeight: FontWeight.w700,
               fontSize: 13,
             ),
@@ -638,12 +636,14 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               ),
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
               decoration: BoxDecoration(
-                color: selected ? color.withValues(alpha: 0.10) : Colors.white,
+                color: selected
+                    ? color.withValues(alpha: 0.10)
+                    : _colors.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: selected
                       ? color.withValues(alpha: 0.45)
-                      : const Color(0xFFE5E7EB),
+                      : _colors.outlineVariant,
                   width: selected ? 1.5 : 1,
                 ),
               ),
@@ -664,7 +664,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
                   Text(
                     priority.label,
                     style: TextStyle(
-                      color: selected ? color : const Color(0xFF6B7280),
+                      color: selected ? color : _colors.onSurfaceVariant,
                       fontSize: 12,
                       fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                     ),
@@ -693,9 +693,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       data: (result) => switch (result) {
         Err(:final failure) => _card(child: Text(failure.message)),
         Success(:final value) when value.isEmpty => _card(
-          child: const Text(
+          child: Text(
             'No activity logged yet.',
-            style: TextStyle(color: Color(0xFF6B7280)),
+            style: TextStyle(color: _colors.onSurfaceVariant),
           ),
         ),
         Success(:final value) => _card(
@@ -720,7 +720,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF6B7280)),
+        Icon(icon, size: 18, color: _colors.onSurfaceVariant),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -728,14 +728,14 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             children: [
               Text(
                 interaction.message,
-                style: const TextStyle(fontSize: 14, color: Color(0xFF374151)),
+                style: TextStyle(fontSize: 14, color: _colors.onSurface),
               ),
               const SizedBox(height: 4),
               Text(
                 _formatDate(interaction.createdAt),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF9CA3AF),
+                  color: _colors.onSurfaceVariant,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -811,7 +811,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               ),
 
               if (!isLast)
-                Container(width: 1, height: 34, color: const Color(0xFFE5E7EB)),
+                Container(width: 1, height: 34, color: _colors.outlineVariant),
             ],
           ),
         ),
@@ -826,9 +826,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF9CA3AF),
+                    color: _colors.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -837,9 +837,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
                 Text(
                   value,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFF111827),
+                    color: _colors.onSurface,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -855,9 +855,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: _colors.outlineVariant),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -866,13 +866,13 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: _colors.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.format_quote_rounded,
               size: 20,
-              color: Color(0xFF6B7280),
+              color: _colors.onSurfaceVariant,
             ),
           ),
 
@@ -881,10 +881,10 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 height: 1.5,
                 fontSize: 14,
-                color: Color(0xFF374151),
+                color: _colors.onSurface,
               ),
             ),
           ),
@@ -897,12 +897,12 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: _colors.outlineVariant),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: _colors.shadow.withValues(alpha: 0.03),
             blurRadius: 15,
             offset: const Offset(0, 6),
           ),
@@ -914,11 +914,11 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
         textInputAction: TextInputAction.newline,
         decoration: InputDecoration(
           hintText: 'Write something important about this lead...',
-          hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14),
+          hintStyle: TextStyle(color: _colors.onSurfaceVariant, fontSize: 14),
           border: InputBorder.none,
-          prefixIcon: const Padding(
-            padding: EdgeInsets.only(left: 4, right: 8, bottom: 65),
-            child: Icon(Icons.edit_note_rounded, color: Color(0xFF6B7280)),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 4, right: 8, bottom: 65),
+            child: Icon(Icons.edit_note_rounded, color: _colors.onSurfaceVariant),
           ),
         ),
       ),
@@ -931,10 +931,10 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF111827),
+            color: _colors.onSurface,
           ),
         ),
 
@@ -942,7 +942,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
 
         Text(
           subtitle,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+          style: TextStyle(fontSize: 12, color: _colors.onSurfaceVariant),
         ),
       ],
     );
@@ -952,9 +952,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: _colors.outlineVariant),
       ),
       child: child,
     );
@@ -963,7 +963,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   Widget _cardDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 15),
-      child: Divider(height: 1, color: const Color(0xFFF0F1F4)),
+      child: Divider(height: 1, color: _colors.outlineVariant),
     );
   }
 
@@ -991,7 +991,7 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: Color(0xFF6B7280)),
+              style: TextStyle(color: _colors.onSurfaceVariant),
             ),
           ),
           TextButton(
@@ -1006,9 +1006,9 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
   Widget _notesList(List<LeadNote> notes) {
     if (notes.isEmpty) {
       return _card(
-        child: const Text(
+        child: Text(
           'No notes yet. Add the first one below.',
-          style: TextStyle(color: Color(0xFF6B7280)),
+          style: TextStyle(color: _colors.onSurfaceVariant),
         ),
       );
     }
@@ -1031,18 +1031,18 @@ class _LeadDetailScreenState extends ConsumerState<LeadDetailScreen> {
       children: [
         Text(
           note.text,
-          style: const TextStyle(
+          style: TextStyle(
             height: 1.5,
             fontSize: 14,
-            color: Color(0xFF374151),
+            color: _colors.onSurface,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           _formatDate(note.createdAt),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: Color(0xFF9CA3AF),
+            color: _colors.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         ),
