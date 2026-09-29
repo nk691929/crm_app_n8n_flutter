@@ -14,15 +14,13 @@ import 'lead_detail_screen.dart';
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
-  static const Color primaryColor = Color(0xFF5B5FEF);
-  static const Color backgroundColor = Color(0xFFF7F8FC);
-
   @override
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   final _searchController = TextEditingController();
+  ColorScheme get _colors => Theme.of(context).colorScheme;
 
   @override
   void dispose() {
@@ -34,11 +32,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final leadsAsync = ref.watch(leadsStreamProvider);
     final filter = ref.watch(leadsFilterProvider);
+    final colors = Theme.of(context).colorScheme;
 
     return DefaultTabController(
       length: LeadStatus.values.length,
       child: Scaffold(
-        backgroundColor: DashboardScreen.backgroundColor,
+        backgroundColor: colors.surface,
         body: SafeArea(
           child: leadsAsync.when(
             loading: () => const _DashboardLoading(),
@@ -134,7 +133,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       pinned: true,
                       delegate: _TabBarDelegate(
                         child: Container(
-                          color: DashboardScreen.backgroundColor,
+                          color: colors.surface,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: _buildTabBar(context),
                         ),
@@ -213,14 +212,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: DashboardScreen.primaryColor.withValues(alpha: 0.20),
+                color: _colors.primary.withValues(alpha: 0.20),
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: const Center(
-            child: Icon(Icons.dashboard_rounded, color: Colors.white, size: 24),
+          child: Center(
+            child: Icon(
+              Icons.dashboard_rounded,
+              color: _colors.surface,
+              size: 24,
+            ),
           ),
         ),
 
@@ -233,7 +236,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               Text(
                 'Good morning 👋',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade600,
+                  color: _colors.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -271,16 +274,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             height: 46,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _colors.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: _colors.onSurfaceVariant),
             ),
             child: Row(
               children: [
                 Icon(
                   Icons.search_rounded,
                   size: 20,
-                  color: Colors.grey.shade500,
+                  color: _colors.onSurfaceVariant,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -304,7 +307,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     child: Icon(
                       Icons.close_rounded,
                       size: 18,
-                      color: Colors.grey.shade500,
+                      color: _colors.onSurfaceVariant,
                     ),
                   ),
               ],
@@ -327,20 +330,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             width: 46,
             decoration: BoxDecoration(
               color: filter.priority != null
-                  ? DashboardScreen.primaryColor
-                  : Colors.white,
+                  ? _colors.primary
+                  : _colors.surface,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: filter.priority != null
-                    ? DashboardScreen.primaryColor
-                    : Colors.grey.shade200,
+                    ? _colors.primary
+                    : _colors.onSurfaceVariant,
               ),
             ),
             child: Icon(
               Icons.tune_rounded,
               color: filter.priority != null
-                  ? Colors.white
-                  : Colors.grey.shade700,
+                  ? _colors.surface
+                  : _colors.onSurface,
             ),
           ),
         ),
@@ -412,20 +415,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _colors.surface,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: _colors.onSurfaceVariant),
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.insights_rounded,
-                size: 16,
-                color: DashboardScreen.primaryColor,
-              ),
-              SizedBox(width: 5),
-              Text(
+              Icon(Icons.insights_rounded, size: 16, color: _colors.primary),
+              const SizedBox(width: 5),
+              const Text(
                 'Live',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
               ),
@@ -451,7 +450,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           height: 230,
           padding: const EdgeInsets.fromLTRB(12, 20, 20, 12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _colors.surface,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
@@ -460,7 +459,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 offset: const Offset(0, 8),
               ),
             ],
-            border: Border.all(color: Colors.grey.shade100),
+            border: Border.all(color: _colors.outlineVariant),
           ),
           child: BarChart(
             BarChartData(
@@ -474,7 +473,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 drawVerticalLine: false,
                 horizontalInterval: 1,
                 getDrawingHorizontalLine: (value) {
-                  return FlLine(color: Colors.grey.shade100, strokeWidth: 1);
+                  return FlLine(color: _colors.outlineVariant, strokeWidth: 1);
                 },
               ),
               titlesData: FlTitlesData(
@@ -494,7 +493,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         value.toInt().toString(),
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey.shade500,
+                          color: _colors.onSurfaceVariant,
                           fontWeight: FontWeight.w500,
                         ),
                       );
@@ -518,7 +517,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           _shortStatusLabel(LeadStatus.values[index].label),
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.grey.shade600,
+                            color: _colors.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -563,9 +562,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _colors.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _colors.onSurfaceVariant),
       ),
       child: TabBar(
         isScrollable: true,
@@ -573,11 +572,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         dividerColor: Colors.transparent,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
-          color: DashboardScreen.primaryColor,
+          color: _colors.primary,
           borderRadius: BorderRadius.circular(11),
         ),
-        labelColor: Colors.white,
-        unselectedLabelColor: Colors.grey.shade600,
+        labelColor: _colors.surface,
+        unselectedLabelColor: _colors.onSurfaceVariant,
         labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
         unselectedLabelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
@@ -608,8 +607,9 @@ class _HeaderIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Material(
-      color: Colors.white,
+      color: colors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onPressed,
@@ -619,9 +619,9 @@ class _HeaderIconButton extends StatelessWidget {
           height: 44,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: colors.onSurfaceVariant),
           ),
-          child: Icon(icon, size: 21, color: Colors.grey.shade700),
+          child: Icon(icon, size: 21, color: colors.onSurface),
         ),
       ),
     );
@@ -647,12 +647,13 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colors.surface,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: Colors.grey.shade100),
+            border: Border.all(color: colors.outlineVariant),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
@@ -684,7 +685,7 @@ class _StatCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 11,
-                        color: Colors.grey.shade600,
+                        color: colors.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -723,6 +724,7 @@ class _EmptyLeadsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -736,10 +738,10 @@ class _EmptyLeadsState extends StatelessWidget {
                 color: const Color(0xFFEEEEFF),
                 borderRadius: BorderRadius.circular(26),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.people_outline_rounded,
                 size: 38,
-                color: DashboardScreen.primaryColor,
+                color: colors.primary,
               ),
             ),
             const SizedBox(height: 18),
@@ -753,7 +755,7 @@ class _EmptyLeadsState extends StatelessWidget {
                   ? 'Try a different name, phone, or filter.'
                   : 'Add a new lead to start building your pipeline.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
             ),
           ],
         ),
@@ -767,9 +769,8 @@ class _DashboardLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(color: DashboardScreen.primaryColor),
-    );
+    final colors = Theme.of(context).colorScheme;
+    return Center(child: CircularProgressIndicator(color: colors.primary));
   }
 }
 
@@ -781,6 +782,7 @@ class _DashboardError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(28),
@@ -797,7 +799,7 @@ class _DashboardError extends StatelessWidget {
             Text(
               error,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
             ),
             const SizedBox(height: 18),
             ElevatedButton.icon(
